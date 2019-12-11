@@ -2,7 +2,7 @@
 
 
 # Initial pre-processing ------------------------------------------------------
-cb.cnv <- read.delim("cb.cnv.all.samples.20181022.txt", sep = "\t") #11024 obs, 1049 vars (1043 genes + other vars)
+cb.cnv <- read.delim("cb.cnv.all.samples.20181022.txt", sep = "\t") #11024 obs, 1049 vars
 
 all.cbs = read.delim("all_cytobands_unique.txt", sep = "\t", header = T) # From Zack et al, Nature Genetics, DOI: 10.1038/ng.2760)
 all.cbs = as.character(all.cbs$all.cbs)
@@ -31,7 +31,7 @@ keep.origin = c('ACC', 'CHOL', 'COADREAD', 'GBM', 'KICH', 'KIRC', 'KIRP', 'LAML'
 top.cnvs = top.cnvs %>% filter(origin %in% keep.origin) 
 top.cnvs$origin = as.factor(top.cnvs$origin)
 top.cnvs$origin = plyr::mapvalues(top.cnvs$origin, from = c('ACC', 'CHOL', 'COADREAD', 'GBM', 'KICH', 'KIRC', 'KIRP', 'LAML', 'LGG', 'LIHC', 'LUAD', 'LUSC', 'OV', 'PAAD', 'PCPG', 'PRAD', 'STAD', 'TGCT', 'THCA', 'THYM', 'UVM', 'COADREAD_LP', 'LGG_LP', 'STAD_LP'), to = c('ADRENAL', 'LIVER', 'GI', 'NERVOUS', 'KIDNEY', 'KIDNEY', 'KIDNEY', 'CNLOW', 'NERVOUS', 'LIVER', 'LUNG', 'LUNG', 'OVARY', 'GI', 'PHEO', 'CNLOW', 'GI', 'MALE', 'CNLOW', 'CNLOW', 'MELANOMA', 'GI', 'NERVOUS', 'GI'))
-top.cnvs$origin = droplevels(top.cnvs$origin) #7328 Samples in 20190124
+top.cnvs$origin = droplevels(top.cnvs$origin) 
 #RF 500 trees on 20190131
 #Overall Statistics
 #Accuracy : 0.8321          
@@ -42,7 +42,7 @@ top.cnvs$origin = droplevels(top.cnvs$origin) #7328 Samples in 20190124
 
 #plot(rf.imp) ... it looks like 150 trees is about what i need. After that the OOB error rate basically levels off.
 
-#RF 100 trees new 20190123
+#RF 100 trees 
 #Overall Statistics
 #Accuracy : 0.783           
 #95% CI : (0.7605, 0.8043)
@@ -59,17 +59,17 @@ top.cnvs2 = top.cnvs
 tcga = top.cnvs2[top.cnvs2$dataset == 'tcga',] #10478
 tcga$origin = as.factor(tcga$origin)
 table(tcga$origin)
-ctc = top.cnvs2[top.cnvs2$dataset == 'ctc',] #63
-ctc = ctc %>% filter(sample.name %in% keep.ctcs) #44, these are the ones for the paper
+ctc = top.cnvs2[top.cnvs2$dataset == 'ctc',] 
+ctc = ctc %>% filter(sample.name %in% keep.ctcs) 
 
 
 #Using just the cbs for classification
 top.cnvs2 = top.cnvs[,c(1,2,3,7:274)]
-tcga = top.cnvs2[top.cnvs2$dataset == 'tcga',] #10478
+tcga = top.cnvs2[top.cnvs2$dataset == 'tcga',] 
 tcga$origin = as.factor(tcga$origin)
 table(tcga$origin)
-ctc = top.cnvs2[top.cnvs2$dataset == 'ctc',] #63
-ctc = ctc %>% filter(sample.name %in% keep.ctcs) #45, these are the ones for the paper
+ctc = top.cnvs2[top.cnvs2$dataset == 'ctc',] 
+ctc = ctc %>% filter(sample.name %in% keep.ctcs) 
 
 #Decide which column to use as classifier: 2 = TCGA origin name
 tcga_df = tcga[,c(2,4:length(tcga))]
@@ -83,7 +83,7 @@ train_ind = sample(seq_len(nrow(tcga_df)), size = smp_size)
 train = tcga_df[train_ind,] #3225
 train = upSample(x = train, y = train$origin) ###Upsampling training set to get equal partitions
 train = train[,-ncol(train)] #removing the extra column that upsample has added.
-test = tcga_df[-train_ind,] #807
+test = tcga_df[-train_ind,] 
 train$origin = droplevels(train$origin) 
 test$origin = droplevels(test$origin) 
 
@@ -216,7 +216,7 @@ ctc.unique = combined %>% filter(ctc.diff > 0.2) #5 observations
 
 # t-SNE space -------------------------------------------------------------
 
-pca.cnv <- read.delim("pca.cnv.0.95cutoff.txt", sep = "\t") #11024 obs, 1049 vars (1043 genes + other vars)
+pca.cnv <- read.delim("pca.cnv.0.95cutoff.txt", sep = "\t") 
 ###Trying t-SNE space
 cnv.mat = pca.cnv[,c(7:1049)]
 rownames(cnv.mat) = pca.cnv$sample.name
@@ -226,7 +226,7 @@ cnv.mat = as.matrix(cnv.mat)
 ###Double check for duplicates
 head(cnv.mat[1:5,1:5])
 table(duplicated(colnames(cnv.mat)))
-unique.colnames = unique(colnames(cnv.mat)) #1044, cin + 1043 genes
+unique.colnames = unique(colnames(cnv.mat)) 
 
 x = as.data.frame(duplicated(cnv.mat))
 row.names(x) = row.names(cnv.mat)
